@@ -1,0 +1,10 @@
+{
+    "metadata": {
+        "num_labels" : 3
+    },
+    "label2id": {
+        "Noise" : 0,
+        "X Binding" : 1,
+        "A Binding" : 2
+    }
+}
