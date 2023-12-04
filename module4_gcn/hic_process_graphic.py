@@ -4,19 +4,34 @@
 '''
 
 from concurrent.futures import process
+import numpy as np
 import hicstraw
 import os
-import numpy as np
 from scipy.sparse import csr_matrix, coo_matrix, vstack, hstack
 from scipy import sparse
-
 
 import time
 from functools import partial
 import multiprocessing
 from multiprocessing import Process
-from src.utils import create_entire_path_directory, hic_file_paths, PARSED_HIC_FILES_DIRECTORY, hic_data_resolution, download_file
 
+
+def create_entire_path_directory(path):
+    """
+        Given a path, creates all the missing directories on the path and 
+        ensures that the given path is always a valid path
+        @params: <string> path, full absolute path, this function can act wonkily if given a relative path
+        @returns: None
+    """
+    
+    path = path.split('/')
+    curr_path = '/'
+    for dir in path:
+        curr_path = os.path.join(curr_path, dir)
+        if os.path.exists(curr_path):
+            continue
+        else:
+            os.mkdir(curr_path)
 
 
 # Main Multiprocessing switch for the HiC parser
@@ -30,7 +45,7 @@ def process_chromosome(hic, output, resolution, chromosome, debug):
         @params: output <os.path>, path where to store the output files
         @params: resolution <int>, resolution to sample the HiC data at
         @params: chromosome <hicstraw.chromosome>, hicstraw chromosome objects that contains its name and misc properties
-        @returns: None
+        @returns: final output path
     '''
     index = chromosome.index
     length = chromosome.length
@@ -92,7 +107,7 @@ def process_chromosome(hic, output, resolution, chromosome, debug):
 
     np.savez_compressed(output_path, hic=mat, compact=informative_indexes, size=length)
     print('Saving Chromosome at path {}'.format(output_path))
-    return True
+    return output_path
 
     
     
@@ -143,16 +158,16 @@ def parse_hic_file(path_to_hic_file, output, resolution=10000, debug=False):
 
 
 
-def download_all_hic_datasets():
-    for hic_file_key in hic_file_paths.keys():
-        if not os.path.exists(hic_file_paths[hic_file_key]['local_path']):
-            download_file(hic_file_paths[hic_file_key])
+# def download_all_hic_datasets():
+#     for hic_file_key in hic_file_paths.keys():
+#         if not os.path.exists(hic_file_paths[hic_file_key]['local_path']):
+#             download_file(hic_file_paths[hic_file_key])
         
-        parse_hic_file(
-            hic_file_paths[hic_file_key]['local_path'], 
-            os.path.join(PARSED_HIC_FILES_DIRECTORY, hic_file_key),
-            hic_data_resolution
-        )
+#         parse_hic_file(
+#             hic_file_paths[hic_file_key]['local_path'], 
+#             os.path.join(PARSED_HIC_FILES_DIRECTORY, hic_file_key),
+#             hic_data_resolution
+#         )
 
 
 
