@@ -37,31 +37,24 @@ class GCN_classification(nn.Module):
         None.
 
         '''
-        
         super(GCN_classification, self).__init__()
 
         self.num_graph_conv_layers = num_graph_conv_layers
         self.num_lin_layers = num_lin_layers
         self.dropout_value = 0.5
 
-        if self.num_graph_conv_layers == 1:
+        if self.num_graph_conv_layers >= 1:
             self.conv1 = GCNConv(graph_conv_layer_sizes[0], graph_conv_layer_sizes[1])
-        elif self.num_graph_conv_layers == 2:
-            self.conv1 = GCNConv(graph_conv_layer_sizes[0], graph_conv_layer_sizes[1])
+        if self.num_graph_conv_layers >= 2:
             self.conv2 = GCNConv(graph_conv_layer_sizes[1], graph_conv_layer_sizes[2])
-        elif self.num_graph_conv_layers == 3:
-            self.conv1 = GCNConv(graph_conv_layer_sizes[0], graph_conv_layer_sizes[1])
-            self.conv2 = GCNConv(graph_conv_layer_sizes[1], graph_conv_layer_sizes[2])
+        if self.num_graph_conv_layers >= 3:
             self.conv3 = GCNConv(graph_conv_layer_sizes[2], graph_conv_layer_sizes[3])
         
-        if self.num_lin_layers == 1:
+        if self.num_lin_layers >= 1:
             self.lin1 = nn.Linear(lin_hidden_sizes[0], lin_hidden_sizes[1])
-        elif self.num_lin_layers == 2:
-            self.lin1 = nn.Linear(lin_hidden_sizes[0], lin_hidden_sizes[1])
+        if self.num_lin_layers >= 2:
             self.lin2 = nn.Linear(lin_hidden_sizes[1], lin_hidden_sizes[2])
-        elif self.num_lin_layers == 3:
-            self.lin1 = nn.Linear(lin_hidden_sizes[0], lin_hidden_sizes[1])
-            self.lin2 = nn.Linear(lin_hidden_sizes[1], lin_hidden_sizes[2])
+        if self.num_lin_layers >= 3:
             self.lin3 = nn.Linear(lin_hidden_sizes[2], lin_hidden_sizes[3])
             
         self.loss_calc = nn.CrossEntropyLoss()
@@ -83,37 +76,24 @@ class GCN_classification(nn.Module):
         scores [tensor]: Pre-normalized class scores
 
         '''
-
         ### Graph convolution module
-        if self.num_graph_conv_layers == 1:
+        if self.num_graph_conv_layers >= 1:
             h = self.conv1(x, edge_index)
             h = nn.relu(h)
-        elif self.num_graph_conv_layers == 2:
-            h = self.conv1(x, edge_index)
-            h = nn.relu(h)
+        if self.num_graph_conv_layers >= 2:
             h = self.conv2(h, edge_index)
             h = nn.relu(h)
-        elif self.num_graph_conv_layers == 3:
-            h = self.conv1(x, edge_index)
-            h = nn.relu(h)
-            h = self.conv2(h, edge_index)
-            h = nn.relu(h)
+        if self.num_graph_conv_layers >= 3:
             h = self.conv3(h, edge_index)
             h = nn.relu(h)
-            
         h = F.dropout(h, p = self.dropout_value, training=train_status)
-
         ### Linear module
-        if self.num_lin_layers == 1:
+        if self.num_lin_layers >= 1:
             scores = self.lin1(h)
-        elif self.num_lin_layers == 2:
-            scores = self.lin1(h)
+        if self.num_lin_layers >= 2:
             scores = nn.relu(scores)
             scores = self.lin2(scores)
-        elif self.num_lin_layers == 3:
-            scores = self.lin1(h)
-            scores = nn.relu(scores)
-            scores = self.lin2(scores)
+        if self.num_lin_layers >= 3:
             scores = nn.relu(scores)
             scores = self.lin3(scores)
         
