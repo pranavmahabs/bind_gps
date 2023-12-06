@@ -151,13 +151,15 @@ class CustomTrainer(transformers.Trainer):
         # forward pass
         outputs = model(**inputs)
         logits = outputs.get("logits")
-	print(self.weights)
+        print(self.weights)
         # compute custom loss (using the global variable defined above)
-        #rank = os.environ["LOCAL_RANK"]
-        #this_device = torch.device(int(rank))
-	# this_device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-	loss_fct = torch.nn.CrossEntropyLoss(
-            weight=torch.tensor(self.weights, device=torch.device("cuda"))
+        # rank = os.environ["LOCAL_RANK"]
+        # this_device = torch.device(int(rank))
+        this_device = (
+            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        )
+        loss_fct = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor(self.weights, device=this_device)
         )
         loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
         return (loss, outputs) if return_outputs else loss
