@@ -151,11 +151,13 @@ class CustomTrainer(transformers.Trainer):
         # forward pass
         outputs = model(**inputs)
         logits = outputs.get("logits")
+	print(self.weights)
         # compute custom loss (using the global variable defined above)
-        rank = os.environ["LOCAL_RANK"]
-        this_device = torch.device(int(rank))
-        loss_fct = torch.nn.CrossEntropyLoss(
-            weight=torch.tensor(self.weights, device=this_device)
+        #rank = os.environ["LOCAL_RANK"]
+        #this_device = torch.device(int(rank))
+	# this_device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+	loss_fct = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor(self.weights, device=torch.device("cuda"))
         )
         loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
         return (loss, outputs) if return_outputs else loss
@@ -287,10 +289,7 @@ def train():
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
-        num_labels=data.get("metadata", {})["num_labels"],
-        trust_remote_code=True,
-        id2label=id2label,
-        label2id=label2id,
+        num_labels=3,
     )
 
     # configure LoRA
