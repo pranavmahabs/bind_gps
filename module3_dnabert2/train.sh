@@ -1,7 +1,10 @@
 #!/bin/bash
-
-#SBATCH -o myjob.out
-#SBATCH -e myjob.err
+#SBATCH -p gpu --gres=gpu:2
+#SBATCH -J module_3
+#SBATCH -e module_3.err
+#SBATCH -o module_3.out
+#SBATCH --mem=50GB
+#SBATCH -t 24:00:00
 
 # Author: Pranav Mahableshwarkar
 # Last Modified: 08-02-2021
@@ -17,12 +20,15 @@ PICKLE="mre_data_tsv_combined/supervised_dataset.p"
 NUM_GPUS=1
 
 # Code to activate conda environment - this can either be done through conda or mamba. 
-source myconda
-mamba activate learning
+module load anaconda/2022.05
+source activate
+conda activate /oscar/data/larschan/tpham43/bind_gps/module3_dnabert2/conda 
 
 # Code to fine-tune the model.
 LOCAL_RANK=$(seq 0 $((NUM_GPUS - 1))) CUDA_VISIBLE_DEVICE=$(seq 0 $((NUM_GPUS - 1))) 
-torchrun --nproc_per_node $NUM_GPUS train.py \
+echo $LOCAL_RANK
+# torchrun --nproc_per_node $NUM_GPUS train.py \
+python3 train.py \
         --model_name_or_path $MODEL_PATH \
         --label_json $LABELJSON \
         --data_pickle $PICKLE \

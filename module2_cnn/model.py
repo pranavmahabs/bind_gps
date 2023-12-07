@@ -10,7 +10,7 @@ class GPS_CNN(nn.Module):
         super().__init__()
         self.num_bins = num_bins
         self.conv1 = nn.Conv1d(
-            in_channels=43, out_channels=8, kernel_size=5, padding="same"
+            in_channels=42, out_channels=8, kernel_size=5, padding="same"
         )
         self.pool = nn.MaxPool1d(kernel_size=2, stride=1, padding=1)
         self.conv2 = nn.Conv1d(
