@@ -88,23 +88,19 @@ def process_scores(attention_scores, input_ids, tokenizer):
                 attn_score[i] = 0
                 break
 
-        print(len(input_id), len(attn_score))
-        assert(len(input_id) == len(attn_score))
+        ids = (tokenizer.decode(input_id)).split(" ")
         expanded_scores = []
-        print(tokenizer.decode(input_id))
-        for in_id, score in zip(input_id, attn_score):
-            decoded = tokenizer.decode(in_id)
-            if decoded in ['[PAD]', '[SEP]', '[CLS]']:
+        for token, score in zip(ids, attn_score):
+            if token in ['[PAD]', '[SEP]', '[CLS]']:
                 continue
             else:
-                expanded_scores.extend(len(decoded) * [score])
+                expanded_scores.extend(len(token) * [score])
         expanded_scores = expanded_scores
         normed = expanded_scores / np.linalg.norm(expanded_scores)
 
-        print(len(normed), len(expanded_scores))
-        expanded_scores.extend([-1] * (500 - len(expanded_scores)))
+        expanded_scores.extend([-1] * (501 - len(expanded_scores)))
         normed = list(normed)
-        normed.extend([-1] * (500 - len(normed)))
+        normed.extend([-1] * (501 - len(normed)))
         scores[index] = expanded_scores
         unnorm[index] = normed
     return scores, unnorm
