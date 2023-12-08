@@ -151,10 +151,7 @@ class CustomTrainer(transformers.Trainer):
         # forward pass
         outputs = model(**inputs)
         logits = outputs.get("logits")
-<<<<<<< Updated upstream
-=======
         #print(self.weights)
->>>>>>> Stashed changes
         # compute custom loss (using the global variable defined above)
         # rank = os.environ["LOCAL_RANK"]
         # this_device = torch.device(int(rank))
@@ -291,9 +288,7 @@ def train():
     # load model
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
-        cache_dir=training_args.cache_dir,
-        num_labels=num_labels,
-        trust_remote_code=True,
+        num_labels=3,
     )
 
     # configure LoRA

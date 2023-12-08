@@ -1,18 +1,15 @@
 LABELJSON="labels.json"
-MODEL_PATH="pretrained_6mer/"
-PEFT_PATH="../output/binary_enhancer/best_binary_815/"
+PEFT_PATH="output/saves/initial_best_1206"
 PICKLE="mre_data_tsv_combined/evaluate.p"
 
 # Command to be executed with the --normal flag
     # Add your normal command here
 # source myconda
 # mamba activate learning
-python3 transformer_src/evaluate_model.py \
-        --model_config "dna6" \
-        --dnabert_path $MODEL_PATH \
+python3 eval.py \
+        --dnabert_path zhihan1996/DNABERT-2-117M \
         --peft_path $PEFT_PATH \
         --label_json $LABELJSON \
-        --kmer 6 \
         --data_pickle $PICKLE \
         --run_name dnabert-enhancer \
         --model_max_length 512 \

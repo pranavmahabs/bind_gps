@@ -153,14 +153,6 @@ def evaluate():
     )
     model_args, data_args, test_args = parser.parse_args_into_dataclasses()
 
-    tokenizer = DNATokenizer(
-        vocab_file=PRETRAINED_VOCAB_FILES_MAP["vocab_file"][model_args.model_config],
-        do_lower_case=PRETRAINED_INIT_CONFIGURATION[model_args.model_config][
-            "do_lower_case"
-        ],
-        max_len=PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES[model_args.model_config],
-    )
-
     print(f"Provided Pickle File: {data_args.data_pickle}")
 
     print("Loading the Pickled Dataset")
@@ -183,9 +175,7 @@ def evaluate():
 
     model2 = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.dnabert_path,
-        cache_dir=None,
         num_labels=num_labels,
-        trust_remote_code=True,
         output_attentions=True,
     )
     inference_model = PeftModel.from_pretrained(model2, model_args.peft_path)
