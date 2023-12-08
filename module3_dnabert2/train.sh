@@ -45,4 +45,8 @@ python3 train.py \
         --find_unused_parameters False \
         --use_lora \
         --lora_target_modules 'query,value,key,dense' \
+<<<<<<< Updated upstream
         --fp16 True 
+=======
+	--fp16 True 
+>>>>>>> Stashed changes
