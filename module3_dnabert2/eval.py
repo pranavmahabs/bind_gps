@@ -99,7 +99,8 @@ def process_scores(attention_scores, input_ids, tokenizer):
                 expanded_scores.extend(len(decoded) * [score])
         expanded_scores = expanded_scores
         normed = expanded_scores / np.linalg.norm(expanded_scores)
-        
+
+        print(normed, expanded_scores)
         expanded_scores.extend([-1] * (500 - len(expanded_scores)))
         normed = list(normed)
         normed.extend([-1] * (500 - len(normed)))
