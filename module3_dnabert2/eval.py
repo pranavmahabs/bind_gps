@@ -9,7 +9,7 @@ from pynvml import *
 import transformers
 import sklearn
 import numpy as np
-from torch.utils.data import SequentialSampler, DataLoader
+from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel as DDP
 from tqdm import tqdm, trange
 
@@ -28,9 +28,6 @@ from data import (
 
 @dataclass
 class ModelArguments:
-    model_config: str = field(
-        default="dna6", metadata={"help": "Choose dna3, dna4, dna5, or dna6"}
-    )
     dnabert_path: Optional[str] = field(
         default="facebook/opt-125m",
         metadata={"help": "Dir that has Pretrained DNABERT."},
@@ -50,10 +47,6 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
-    kmer: int = field(
-        default=-1,
-        metadata={"help": "k-mer for input sequence. Must be 3, 4, 5, or 6."},
-    )
     data_pickle: str = field(
         default=None, metadata={"help": "ONLY accepts the pickle file from training."}
     )
@@ -186,20 +179,13 @@ def evaluate():
 
     with open(model_args.label_json, "r") as jfile:
         data = json.load(jfile)
-
-    label2id = data.get("label2id", {})
-    metadata = data.get("metadata", {})
-
-    num_labels = metadata["num_labels"]
-    id2label = {v: k for k, v in label2id.items()}
+    num_labels = data.get("metadata", {})["num_labels"]
 
     model2 = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.dnabert_path,
         cache_dir=None,
         num_labels=num_labels,
         trust_remote_code=True,
-        id2label=id2label,
-        label2id=label2id,
         output_attentions=True,
     )
     inference_model = PeftModel.from_pretrained(model2, model_args.peft_path)
@@ -225,7 +211,6 @@ def evaluate():
     single_attentions = np.zeros((len(complete_dataset), score_len))
     unnorm_attentions = np.zeros((len(complete_dataset), score_len))
     pred_results = np.zeros((len(complete_dataset), num_labels))
-    multi_attentions = np.zeros((len(complete_dataset), 12, score_len))
     true_labels = np.zeros(len(complete_dataset))
 
     for index, batch in enumerate(tqdm(pred_loader, desc="Predicting")):
@@ -241,16 +226,12 @@ def evaluate():
             # Save Attention Scores #
             out_attns = (outputs.attentions[-1]).cpu().numpy()
             single_attn, unnormed_attn = process_scores(out_attns, data_args.kmer)
-            multi_attn = process_multi_score(out_attns, data_args.kmer)
             single_attentions[
                 index * batch_size : index * batch_size + len(input_ids), :
             ] = single_attn
             unnorm_attentions[
                 index * batch_size : index * batch_size + len(input_ids), :
             ] = unnormed_attn
-            multi_attentions[
-                index * batch_size : index * batch_size + len(input_ids), :, :
-            ] = multi_attn
             # Save Logits #
             out_logits = outputs.logits.cpu().detach().numpy()
             pred_results[
@@ -270,7 +251,6 @@ def evaluate():
     np.save(os.path.join(test_args.output_dir, "atten.npy"), single_attentions)
     np.save(os.path.join(test_args.output_dir, "unnorm_atten.npy"), unnorm_attentions)
     np.save(os.path.join(test_args.output_dir, "pred_results.npy"), pred_results)
-    np.save(os.path.join(test_args.output_dir, "heads_atten.npy"), multi_attentions)
     np.save(os.path.join(test_args.output_dir, "labels.npy"), true_labels)
 
     if torch.cuda.is_available():
@@ -282,8 +262,6 @@ def evaluate():
             cache_dir=None,
             num_labels=num_labels,
             trust_remote_code=True,
-            id2label=id2label,
-            label2id=label2id,
         )
         inference_model2 = PeftModel.from_pretrained(model, model_args.peft_path)
         trainer = transformers.Trainer(
@@ -293,6 +271,9 @@ def evaluate():
             compute_metrics=compute_final_metrics,
         )
         results = trainer.evaluate(eval_dataset=test_dataset)
+        # Dump evaluation results
+        outputs = results.logits.cpu().detach().numpy()
+        np.save(os.path.join(test_args.output_dir, "eval_logits.npy"), outputs)
         with open(os.path.join(test_args.output_dir, "eval_results.json"), "w") as f:
             json.dump(results, f)
 

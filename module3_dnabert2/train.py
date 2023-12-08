@@ -283,15 +283,14 @@ def train():
     with open(model_args.label_json, "r") as jfile:
         data = json.load(jfile)
 
-    label2id = data.get("label2id", {})
-    id2label = {v: k for k, v in label2id.items()}
-    print(data.get("metadata", {})["num_labels"])
+    num_labels = data.get("metadata", {})["num_labels"]
 
     # load model
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
-        num_labels=3,
+        num_labels=num_labels,
+        trust_remote_code=True,
     )
 
     # configure LoRA
