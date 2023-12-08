@@ -43,4 +43,6 @@ python3 train.py \
         --overwrite_output_dir True \
         --log_level info \
         --find_unused_parameters False \
+        --use_lora \
+        --lora_target_modules 'query,value,key,dense' \
         --fp16 True 

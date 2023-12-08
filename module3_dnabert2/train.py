@@ -151,7 +151,6 @@ class CustomTrainer(transformers.Trainer):
         # forward pass
         outputs = model(**inputs)
         logits = outputs.get("logits")
-        print(self.weights)
         # compute custom loss (using the global variable defined above)
         # rank = os.environ["LOCAL_RANK"]
         # this_device = torch.device(int(rank))
