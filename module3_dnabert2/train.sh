@@ -2,6 +2,10 @@
 
 #SBATCH -o myjob.out
 #SBATCH -e myjob.err
+#SBATCH --mail-user=pranav_mahableshwarkar@brown.edu
+
+#SBATCH --mem=80G
+#SBATCH -t 12:00:00
 
 # Author: Pranav Mahableshwarkar
 # Last Modified: 08-02-2021
