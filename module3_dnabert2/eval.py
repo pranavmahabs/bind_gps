@@ -91,6 +91,7 @@ def process_scores(attention_scores, input_ids, tokenizer):
         print(len(input_id), len(attn_score))
         assert(len(input_id) == len(attn_score))
         expanded_scores = []
+        print(tokenizer.decode(input_id))
         for in_id, score in zip(input_id, attn_score):
             decoded = tokenizer.decode(in_id)
             if decoded in ['[PAD]', '[SEP]', '[CLS]']:
