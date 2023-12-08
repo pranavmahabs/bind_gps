@@ -88,6 +88,7 @@ def process_scores(attention_scores, input_ids, tokenizer):
                 attn_score[i] = 0
                 break
 
+        print(len(input_id), len(attn_score))
         assert(len(input_id) == len(attn_score))
         expanded_scores = []
         for in_id, score in zip(input_id, attn_score):
