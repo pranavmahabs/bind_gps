@@ -79,7 +79,7 @@ def process_scores(attention_scores, input_ids, tokenizer):
         attn_score = []
         input_id = input_ids[index]
 
-        for i in range(1, attention_score.shape[-1]):
+        for i in range(attention_score.shape[-1]):
             # sum (heads, 0, all_scores) -> 0: Beginning of Sentence Token
             attn_score.append(float(attention_score[:, 0, i].sum()))
 
