@@ -288,7 +288,7 @@ def train():
     # load model
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
-        num_labels=3,
+        num_labels=num_labels,
     )
 
     # configure LoRA

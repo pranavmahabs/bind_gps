@@ -69,15 +69,17 @@ def cleanup():
     torch.distributed.destroy_process_group()
 
 
-def process_scores(attention_scores, kmer):
-    scores = np.zeros([attention_scores.shape[0], attention_scores.shape[-1]])
-    unnorm = np.zeros([attention_scores.shape[0], attention_scores.shape[-1]])
+def process_scores(attention_scores, input_ids, tokenizer):
+    scores = np.zeros([attention_scores.shape[0], 500])
+    unnorm = np.zeros([attention_scores.shape[0], 500])
 
     # attention_scores: (batch_size, num_heads, seq_len, seq_len)
     for index, attention_score in enumerate(attention_scores):
         # (1, num_heads, seq_len, seq_len)
         attn_score = []
-        for i in range(1, attention_score.shape[-1] - kmer + 2):
+        input_id = input_ids[index]
+
+        for i in range(1, attention_score.shape[-1]):
             # sum (heads, 0, all_scores) -> 0: Beginning of Sentence Token
             attn_score.append(float(attention_score[:, 0, i].sum()))
 
@@ -86,59 +88,20 @@ def process_scores(attention_scores, kmer):
                 attn_score[i] = 0
                 break
 
-        # attn_score[0] = 0
-        counts = np.zeros([len(attn_score) + kmer - 1])
-        real_scores = np.zeros([len(attn_score) + kmer - 1])
-        for i, score in enumerate(attn_score):
-            for j in range(kmer):
-                counts[i + j] += 1.0
-                real_scores[i + j] += score
-        real_scores = real_scores / counts
-        unnorm[index] = real_scores
-        real_scores = real_scores / np.linalg.norm(real_scores)
+        assert(len(input_id) == len(attn_score))
+        expanded_scores = []
+        for in_id, score in zip(input_id, attn_score):
+            decoded = tokenizer.decode(in_id)
+            if decoded in ['[PAD]', '[SEP]', '[CLS]']:
+                continue
+            else:
+                expanded_scores.extend(len(decoded) * [score])
+        expanded_scores = expanded_scores + [-1] * (500 - len(expanded_scores))
+        normed = expanded_scores / np.linalg.norm(expanded_scores)
 
-        scores[index] = real_scores
+        scores[index] = expanded_scores
+        unnorm[index] = normed
     return scores, unnorm
-
-
-def process_multi_score(attention_scores, kmer):
-    scores = np.zeros(
-        [
-            attention_scores.shape[0],
-            attention_scores.shape[1],
-            attention_scores.shape[-1],
-        ]
-    )
-
-    # attention_scores: (batch_size, num_heads, seq_len, seq_len)
-    for index, attention_score in enumerate(attention_scores):
-        head_scores = np.zeros([attention_scores.shape[1], attention_scores.shape[-1]])
-        for head in range(0, len(attention_score)):
-            attn_score = []
-
-            for i in range(1, attention_score.shape[-1] - kmer + 2):
-                attn_score.append(float(attention_score[head, 0, i]))
-
-            for i in range(len(attn_score) - 1):
-                if attn_score[i + 1] == 0:
-                    attn_score[i] = 0
-                    break
-
-            counts = np.zeros([len(attn_score) + kmer - 1])
-            real_scores = np.zeros([len(attn_score) + kmer - 1])
-
-            for i, score in enumerate(attn_score):
-                for j in range(kmer):
-                    counts[i + j] += 1.0
-                    real_scores[i + j] += score
-            real_scores = real_scores / counts
-            real_scores = real_scores / np.linalg.norm(real_scores)
-
-            head_scores[head] = real_scores
-
-        scores[index] = head_scores
-    return scores
-
 
 def evaluate():
     parser = transformers.HfArgumentParser(
@@ -197,7 +160,7 @@ def evaluate():
         collate_fn=data_collator,
     )
 
-    score_len = len(complete_dataset.input_ids[0])
+    score_len = 500
     # if score_len != 496:
     #    raise ValueError("Score Length is not 496")
     single_attentions = np.zeros((len(complete_dataset), score_len))
@@ -217,7 +180,7 @@ def evaluate():
 
             # Save Attention Scores #
             out_attns = (outputs.attentions[-1]).cpu().numpy()
-            single_attn, unnormed_attn = process_scores(out_attns, data_args.kmer)
+            single_attn, unnormed_attn = process_scores(out_attns, input_ids, tokenizer)
             single_attentions[
                 index * batch_size : index * batch_size + len(input_ids), :
             ] = single_attn
