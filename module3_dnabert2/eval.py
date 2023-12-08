@@ -70,8 +70,8 @@ def cleanup():
 
 
 def process_scores(attention_scores, input_ids, tokenizer):
-    scores = np.zeros([attention_scores.shape[0], 500])
-    unnorm = np.zeros([attention_scores.shape[0], 500])
+    scores = np.zeros([attention_scores.shape[0], 501])
+    unnorm = np.zeros([attention_scores.shape[0], 501])
 
     # attention_scores: (batch_size, num_heads, seq_len, seq_len)
     for index, attention_score in enumerate(attention_scores):
@@ -166,7 +166,7 @@ def evaluate():
         collate_fn=data_collator,
     )
 
-    score_len = 500
+    score_len = 501
     # if score_len != 496:
     #    raise ValueError("Score Length is not 496")
     single_attentions = np.zeros((len(complete_dataset), score_len))
