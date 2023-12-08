@@ -17,13 +17,6 @@ from peft import PeftConfig, PeftModel
 
 from train import compute_final_metrics, CustomTrainer
 from data import SupervisedDataset, DataCollatorForSupervisedDataset
-from data import (
-    DNATokenizer,
-    PRETRAINED_INIT_CONFIGURATION,
-    PRETRAINED_VOCAB_FILES_MAP,
-    PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES,
-    VOCAB_KMER,
-)
 
 
 @dataclass
@@ -160,7 +153,7 @@ def evaluate():
         dataset = pickle.load(handle)
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.dnabert_path,
         cache_dir=test_args.cache_dir,
         model_max_length=test_args.model_max_length,
         padding_side="right",
