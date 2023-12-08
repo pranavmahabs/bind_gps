@@ -159,6 +159,15 @@ def evaluate():
     with open(data_args.data_pickle, "rb") as handle:
         dataset = pickle.load(handle)
 
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
+        model_args.model_name_or_path,
+        cache_dir=test_args.cache_dir,
+        model_max_length=test_args.model_max_length,
+        padding_side="right",
+        use_fast=True,
+        trust_remote_code=True,
+    )
+
     complete_dataset = dataset.get("positive", None)
     if complete_dataset is None:
         raise ValueError("No dataset found in the pickle file.")
