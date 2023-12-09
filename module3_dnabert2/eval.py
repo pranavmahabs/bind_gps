@@ -170,55 +170,54 @@ def evaluate():
     pred_results = np.zeros((len(complete_dataset), num_labels))
     true_labels = np.zeros(len(complete_dataset))
 
-    for index, batch in enumerate(tqdm(pred_loader, desc="Predicting")):
-        inference_model.eval()
-
-        with torch.no_grad():
-            input_ids = batch["input_ids"].to(device)
-            masks = batch["attention_mask"].to(device)
-            labels = batch["labels"]
-
-            outputs = inference_model(input_ids, masks)
-
-            # Save Attention Scores #
-            out_attns = (outputs.attentions[-1]).cpu().numpy()
-            single_attn, unnormed_attn = process_scores(out_attns, input_ids, tokenizer)
-            single_attentions[
-                index * batch_size : index * batch_size + len(input_ids), :
-            ] = single_attn
-            unnorm_attentions[
-                index * batch_size : index * batch_size + len(input_ids), :
-            ] = unnormed_attn
-            # Save Logits #
-            out_logits = outputs.logits.cpu().detach().numpy()
-            pred_results[
-                index * batch_size : index * batch_size + len(input_ids), :
-            ] = out_logits
-
-            true_labels[
-                index * batch_size : index * batch_size + len(input_ids)
-            ] = labels
-
-    if not os.path.exists(test_args.output_dir):
-        os.makedirs(test_args.output_dir)
-        print(f"Directory '{test_args.output_dir}' created. Saving results now.")
-    else:
-        print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
-
-    np.save(os.path.join(test_args.output_dir, "atten.npy"), single_attentions)
-    np.save(os.path.join(test_args.output_dir, "unnorm_atten.npy"), unnorm_attentions)
-    np.save(os.path.join(test_args.output_dir, "pred_results.npy"), pred_results)
-    np.save(os.path.join(test_args.output_dir, "labels.npy"), true_labels)
+    #for index, batch in enumerate(tqdm(pred_loader, desc="Predicting")):
+    #    inference_model.eval()
+#
+#        with torch.no_grad():
+#            input_ids = batch["input_ids"].to(device)
+#            masks = batch["attention_mask"].to(device)
+#            labels = batch["labels"]
+#
+#            outputs = inference_model(input_ids, masks)
+#
+#            # Save Attention Scores #
+#            out_attns = (outputs.attentions[-1]).cpu().numpy()
+#            single_attn, unnormed_attn = process_scores(out_attns, input_ids, tokenizer)
+#            single_attentions[
+#                index * batch_size : index * batch_size + len(input_ids), :
+#            ] = single_attn
+#            unnorm_attentions[
+#                index * batch_size : index * batch_size + len(input_ids), :
+#            ] = unnormed_attn
+#            # Save Logits #
+#            out_logits = outputs.logits.cpu().detach().numpy()
+#            pred_results[
+#                index * batch_size : index * batch_size + len(input_ids), :
+#            ] = out_logits
+#
+#            true_labels[
+#                index * batch_size : index * batch_size + len(input_ids)
+#            ] = labels
+#
+#    if not os.path.exists(test_args.output_dir):
+#        os.makedirs(test_args.output_dir)
+#        print(f"Directory '{test_args.output_dir}' created. Saving results now.")
+#    else:
+#        print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
+#
+#    np.save(os.path.join(test_args.output_dir, "atten.npy"), single_attentions)
+#    np.save(os.path.join(test_args.output_dir, "unnorm_atten.npy"), unnorm_attentions)
+#    np.save(os.path.join(test_args.output_dir, "pred_results.npy"), pred_results)
+#    np.save(os.path.join(test_args.output_dir, "labels.npy"), true_labels)
 
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
     if test_args.re_eval:
+        print("RUNNING EVALUATION")
         model = transformers.AutoModelForSequenceClassification.from_pretrained(
             model_args.dnabert_path,
-            cache_dir=None,
             num_labels=num_labels,
-            trust_remote_code=True,
         )
         inference_model2 = PeftModel.from_pretrained(model, model_args.peft_path)
         trainer = transformers.Trainer(
@@ -229,8 +228,12 @@ def evaluate():
         )
         results = trainer.evaluate(eval_dataset=test_dataset)
         # Dump evaluation results
-        outputs = results.logits.cpu().detach().numpy()
+        predictions = trainer.predict(test_dataset)
+        print(predictions)
+        outputs = predictions.predictions
+        labels = test_dataset.labels
         np.save(os.path.join(test_args.output_dir, "eval_logits.npy"), outputs)
+        np.save(os.path.join(test_args.output_dir, "eval_labels.npy"), labels)
         with open(os.path.join(test_args.output_dir, "eval_results.json"), "w") as f:
             json.dump(results, f)
 

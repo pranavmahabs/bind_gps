@@ -25,7 +25,7 @@ NUM_GPUS=1
 # mamba activate learning
 
 # Code to fine-tune the model.
-values=(42 2023 786 555 9000)
+values=(2023 786 555 9000)
 for SEED in "${values[@]}"; do
     python3 train.py \
         --model_name_or_path zhihan1996/DNABERT-2-117M \
