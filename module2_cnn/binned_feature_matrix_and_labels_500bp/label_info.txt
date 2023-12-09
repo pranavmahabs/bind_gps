@@ -1,0 +1,17 @@
+# fetaures_and_labels.2_classes.500bp_bin.tsv
+2 classes in label:
+	1 = Binding to MRE (regardless of chromosome identity)
+	0 = No Binding to MRE (regardless of chromosome identity)
+
+# fetaures_and_labels.3_classes.500bp_bin.tsv
+3 classes in label: 
+	1 = Binding to MRE on Autosomes
+	-1 = Binding to MRE on X-chromosome
+	0 = No Binding to MRE on neither Autosomes or X-chromosome
+
+# fetaures_and_labels.4_classes.500bp_bin.tsv
+4 classes in label: 
+	1 = Binding to MRE on Autosomes
+	-1 = Binding to MRE on X-chromosome
+	0 = No Binding to MRE on Autosomes
+	-2 = No Binding to MRE on X-chromosome

@@ -6,17 +6,17 @@ import numpy as np
 
 
 class GPS_CNN(nn.Module):
-    def __init__(self, num_bins=51):
+    def __init__(self, num_bins=21, num_channels=24):
         super().__init__()
         self.num_bins = num_bins
         self.conv1 = nn.Conv1d(
-            in_channels=43, out_channels=8, kernel_size=5, padding="same"
+            in_channels=num_channels, out_channels=8, kernel_size=5, padding="same"
         )
         self.pool = nn.MaxPool1d(kernel_size=2, stride=1, padding=1)
         self.conv2 = nn.Conv1d(
             in_channels=8, out_channels=4, kernel_size=5, padding="same"
         )
-        self.fc1 = nn.Linear(in_features=212, out_features=64)
+        self.fc1 = nn.Linear(in_features=92, out_features=64)
         self.fc2 = nn.Linear(in_features=64, out_features=2)
 
     def forward(self, x):
