@@ -211,16 +211,16 @@ def evaluate():
     # single_attentions, unnorm_attentions, pred_results, true_labels = predict(
     #     pred_loader, inference_model, complete_dataset, num_labels, device, batch_size, tokenizer, attentions=True
     # )
-    if not os.path.exists(test_args.output_dir):
-       os.makedirs(test_args.output_dir)
-       print(f"Directory '{test_args.output_dir}' created. Saving results now.")
-    else:
-       print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
+    # if not os.path.exists(test_args.output_dir):
+    #    os.makedirs(test_args.output_dir)
+    #    print(f"Directory '{test_args.output_dir}' created. Saving results now.")
+    # else:
+    #    print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
 
-    np.save(os.path.join(test_args.output_dir, "pos_atten.npy"), single_attentions)
-    np.save(os.path.join(test_args.output_dir, "pos_unnorm_atten.npy"), unnorm_attentions)
-    np.save(os.path.join(test_args.output_dir, "pos_pred_results.npy"), pred_results)
-    np.save(os.path.join(test_args.output_dir, "pos_labels.npy"), true_labels)
+    # np.save(os.path.join(test_args.output_dir, "pos_atten.npy"), single_attentions)
+    # np.save(os.path.join(test_args.output_dir, "pos_unnorm_atten.npy"), unnorm_attentions)
+    # np.save(os.path.join(test_args.output_dir, "pos_pred_results.npy"), pred_results)
+    # np.save(os.path.join(test_args.output_dir, "pos_labels.npy"), true_labels)
 
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
