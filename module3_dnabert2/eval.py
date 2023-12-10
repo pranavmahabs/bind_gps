@@ -105,6 +105,52 @@ def process_scores(attention_scores, input_ids, tokenizer):
         unnorm[index] = normed
     return scores, unnorm
 
+
+def predict(pred_loader, inference_model, complete_dataset, num_labels, device, batch_size, tokenizer, attentions=True):
+    score_len = 501
+    # if score_len != 496:
+    #    raise ValueError("Score Length is not 496")
+    if attentions:
+        single_attentions = np.zeros((len(complete_dataset), score_len))
+        unnorm_attentions = np.zeros((len(complete_dataset), score_len))
+    pred_results = np.zeros((len(complete_dataset), num_labels))
+    true_labels = np.zeros(len(complete_dataset))
+
+    for index, batch in enumerate(tqdm(pred_loader, desc="Predicting")):
+       inference_model.eval()
+
+       with torch.no_grad():
+           input_ids = batch["input_ids"].to(device)
+           masks = batch["attention_mask"].to(device)
+           labels = batch["labels"]
+
+           outputs = inference_model(input_ids, masks)
+
+           # Save Attention Scores #
+           if attentions:
+                out_attns = (outputs.attentions[-1]).cpu().numpy()
+                single_attn, unnormed_attn = process_scores(out_attns, input_ids, tokenizer)
+                single_attentions[
+                    index * batch_size : index * batch_size + len(input_ids), :
+                ] = single_attn
+                unnorm_attentions[
+                    index * batch_size : index * batch_size + len(input_ids), :
+                ] = unnormed_attn
+           # Save Logits #
+           out_logits = outputs.logits.cpu().detach().numpy()
+           pred_results[
+               index * batch_size : index * batch_size + len(input_ids), :
+           ] = out_logits
+
+           true_labels[
+               index * batch_size : index * batch_size + len(input_ids)
+           ] = labels
+
+    if attentions:
+        return single_attentions, unnorm_attentions, pred_results, true_labels
+    else:
+        return None, None, pred_results, true_labels
+
 def evaluate():
     parser = transformers.HfArgumentParser(
         (ModelArguments, DataArguments, TestingArguments)
@@ -162,59 +208,41 @@ def evaluate():
         collate_fn=data_collator,
     )
 
-    score_len = 501
-    # if score_len != 496:
-    #    raise ValueError("Score Length is not 496")
-    single_attentions = np.zeros((len(complete_dataset), score_len))
-    unnorm_attentions = np.zeros((len(complete_dataset), score_len))
-    pred_results = np.zeros((len(complete_dataset), num_labels))
-    true_labels = np.zeros(len(complete_dataset))
+    # single_attentions, unnorm_attentions, pred_results, true_labels = predict(
+    #     pred_loader, inference_model, complete_dataset, num_labels, device, batch_size, tokenizer, attentions=True
+    # )
+    if not os.path.exists(test_args.output_dir):
+       os.makedirs(test_args.output_dir)
+       print(f"Directory '{test_args.output_dir}' created. Saving results now.")
+    else:
+       print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
 
-    #for index, batch in enumerate(tqdm(pred_loader, desc="Predicting")):
-    #    inference_model.eval()
-#
-#        with torch.no_grad():
-#            input_ids = batch["input_ids"].to(device)
-#            masks = batch["attention_mask"].to(device)
-#            labels = batch["labels"]
-#
-#            outputs = inference_model(input_ids, masks)
-#
-#            # Save Attention Scores #
-#            out_attns = (outputs.attentions[-1]).cpu().numpy()
-#            single_attn, unnormed_attn = process_scores(out_attns, input_ids, tokenizer)
-#            single_attentions[
-#                index * batch_size : index * batch_size + len(input_ids), :
-#            ] = single_attn
-#            unnorm_attentions[
-#                index * batch_size : index * batch_size + len(input_ids), :
-#            ] = unnormed_attn
-#            # Save Logits #
-#            out_logits = outputs.logits.cpu().detach().numpy()
-#            pred_results[
-#                index * batch_size : index * batch_size + len(input_ids), :
-#            ] = out_logits
-#
-#            true_labels[
-#                index * batch_size : index * batch_size + len(input_ids)
-#            ] = labels
-#
-#    if not os.path.exists(test_args.output_dir):
-#        os.makedirs(test_args.output_dir)
-#        print(f"Directory '{test_args.output_dir}' created. Saving results now.")
-#    else:
-#        print(f"Directory '{test_args.output_dir}' already exists. Saving results now.")
-#
-#    np.save(os.path.join(test_args.output_dir, "atten.npy"), single_attentions)
-#    np.save(os.path.join(test_args.output_dir, "unnorm_atten.npy"), unnorm_attentions)
-#    np.save(os.path.join(test_args.output_dir, "pred_results.npy"), pred_results)
-#    np.save(os.path.join(test_args.output_dir, "labels.npy"), true_labels)
+    np.save(os.path.join(test_args.output_dir, "pos_atten.npy"), single_attentions)
+    np.save(os.path.join(test_args.output_dir, "pos_unnorm_atten.npy"), unnorm_attentions)
+    np.save(os.path.join(test_args.output_dir, "pos_pred_results.npy"), pred_results)
+    np.save(os.path.join(test_args.output_dir, "pos_labels.npy"), true_labels)
 
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
     if test_args.re_eval:
         print("RUNNING EVALUATION")
+        eval_loader = DataLoader(
+            dataset=test_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            collate_fn=data_collator,
+        )
+        _, _, pred_results, true_labels = predict(
+            eval_loader, inference_model, test_dataset, num_labels, device, batch_size, tokenizer, attentions=False
+        )
+        np.save(os.path.join(test_args.output_dir, "eval_pred_results.npy"), pred_results)
+        np.save(os.path.join(test_args.output_dir, "eval_labels.npy"), true_labels)
+
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
         model = transformers.AutoModelForSequenceClassification.from_pretrained(
             model_args.dnabert_path,
             num_labels=num_labels,
@@ -227,13 +255,6 @@ def evaluate():
             compute_metrics=compute_final_metrics,
         )
         results = trainer.evaluate(eval_dataset=test_dataset)
-        # Dump evaluation results
-        predictions = trainer.predict(test_dataset)
-        print(predictions)
-        outputs = predictions.predictions
-        labels = test_dataset.labels
-        np.save(os.path.join(test_args.output_dir, "eval_logits.npy"), outputs)
-        np.save(os.path.join(test_args.output_dir, "eval_labels.npy"), labels)
         with open(os.path.join(test_args.output_dir, "eval_results.json"), "w") as f:
             json.dump(results, f)
 

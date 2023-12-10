@@ -18,6 +18,7 @@ import sklearn
 from pynvml import *
 import numpy as np
 from torch.utils.data import Dataset
+from sklearn.metrics import roc_auc_score, roc_curve, auc
 
 from peft import (
     LoraConfig,
@@ -199,7 +200,7 @@ def calculate_metric_with_sklearn(logits: np.ndarray, labels: np.ndarray):
 def compute_auc_fpr_thresholds(logits, labels):
     """Metrics used during FINAL model evaluation."""
     ## class 0
-    [fprs0, tprs0, thrs0] = sklearn.metrics.roc_curve((labels == 1), logits[:, 1])
+    [fprs0, tprs0, thrs0] = roc_curve((labels == 1), logits[:, 1])
     sort_ix = np.argsort(np.abs(fprs0 - 0.1))
     fpr10_0 = thrs0[sort_ix[0]]
     sort_ix = np.argsort(np.abs(fprs0 - 0.05))
@@ -208,6 +209,16 @@ def compute_auc_fpr_thresholds(logits, labels):
     fpr03_0 = thrs0[sort_ix[0]]
     sort_ix = np.argsort(np.abs(fprs0 - 0.01))
     fpr01_0 = thrs0[sort_ix[0]]
+
+    roc_auc = auc(fprs0, tprs0)
+    plt.figure()
+    plt.plot(fprs0, tprs0, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.legend(loc="lower right")
+    plt.title('ROC Curve for X-Chromosome CLAMP Binding')
+    plt.save('output/plots/x_roc.png')
 
     ## class 2
     [fprs2, tprs2, thrs2] = sklearn.metrics.roc_curve((labels == 2), logits[:, 2])
@@ -219,6 +230,16 @@ def compute_auc_fpr_thresholds(logits, labels):
     fpr03_2 = thrs2[sort_ix[0]]
     sort_ix = np.argsort(np.abs(fprs2 - 0.01))
     fpr01_2 = thrs2[sort_ix[0]]
+        
+    roc_auc = auc(fprs2, tprs2)
+    plt.figure()
+    plt.plot(fprs2, tprs2, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.legend(loc="lower right")
+    plt.title('ROC Curve for X-Chromosome CLAMP Binding')
+    plt.save('output/plots/aut_roc.png')
 
     predictions = np.argmax(logits, axis=-1)
 
