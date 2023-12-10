@@ -19,6 +19,7 @@ from pynvml import *
 import numpy as np
 from torch.utils.data import Dataset
 from sklearn.metrics import roc_auc_score, roc_curve, auc
+import matplotlib.pyplot as plt
 
 from peft import (
     LoraConfig,
@@ -218,7 +219,7 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
     plt.title('ROC Curve for X-Chromosome CLAMP Binding')
-    plt.save('output/plots/x_roc.png')
+    plt.savefig('output/plots/x_roc.png')
 
     ## class 2
     [fprs2, tprs2, thrs2] = sklearn.metrics.roc_curve((labels == 2), logits[:, 2])
@@ -239,7 +240,7 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
     plt.title('ROC Curve for X-Chromosome CLAMP Binding')
-    plt.save('output/plots/aut_roc.png')
+    plt.savefig('output/plots/aut_roc.png')
 
     predictions = np.argmax(logits, axis=-1)
 
