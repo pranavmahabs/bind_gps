@@ -1,7 +1,8 @@
 LABELJSON="labels.json"
-PEFT_PATH="output/three-class/saves/initial_best_1206"
+PEFT_PATH="output/three-class/clamp_xva_42/checkpoint-38000"
+#PEFT_PATH="output/three-class/saves/initial_best_1206"
 PICKLE="mre_data_tsv_combined/evaluate.p"
-OUTPATH="output/three_class/val_results"
+OUTPATH="output/three_class/final_results"
 
 # Command to be executed with the --normal flag
     # Add your normal command here

@@ -160,9 +160,8 @@ class CustomTrainer(transformers.Trainer):
         this_device = (
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         )
-        loss_fct = torch.nn.CrossEntropyLoss(
-            weight=torch.tensor(self.weights, device=this_device)
-        )
+        weights =  torch.tensor([1.0, 3.0, 2.0], device=this_device)
+        loss_fct = torch.nn.CrossEntropyLoss(weight=weights)
         loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
         return (loss, outputs) if return_outputs else loss
 
@@ -213,13 +212,13 @@ def compute_auc_fpr_thresholds(logits, labels):
 
     roc_auc = auc(fprs0, tprs0)
     plt.figure()
-    plt.plot(fprs0, tprs0, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.legend(loc="lower right")
-    plt.title('ROC Curve for X-Chromosome CLAMP Binding')
-    plt.savefig('output/plots/x_roc.png')
+    plt.plot(fprs0, tprs0, color='darkorange', lw=2, label='X-Binding ROC curve (area = {:.2f})'.format(roc_auc))
+    #plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    #plt.xlabel('False Positive Rate')
+    #plt.ylabel('True Positive Rate')
+    #plt.legend(loc="lower right")
+    #plt.title('ROC Curve for X-Chromosome CLAMP Binding')
+    #plt.savefig('output/plots/x_roc.png')
 
     ## class 2
     [fprs2, tprs2, thrs2] = sklearn.metrics.roc_curve((labels == 2), logits[:, 2])
@@ -233,14 +232,14 @@ def compute_auc_fpr_thresholds(logits, labels):
     fpr01_2 = thrs2[sort_ix[0]]
         
     roc_auc = auc(fprs2, tprs2)
-    plt.figure()
-    plt.plot(fprs2, tprs2, color='darkorange', lw=2, label='ROC curve (area = {:.2f})'.format(roc_auc))
+    #plt.figure()
+    plt.plot(fprs2, tprs2, color='darkorange', lw=2, label='A-Binding ROC curve (area = {:.2f})'.format(roc_auc))
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
-    plt.title('ROC Curve for X-Chromosome CLAMP Binding')
-    plt.savefig('output/plots/aut_roc.png')
+    plt.title('ROC Curves for MRE Binding Prediction')
+    plt.savefig('output/plots/roc.png')
 
     predictions = np.argmax(logits, axis=-1)
 

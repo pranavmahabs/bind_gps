@@ -233,11 +233,11 @@ def evaluate():
             shuffle=False,
             collate_fn=data_collator,
         )
-        #_, _, pred_results, true_labels = predict(
-        #    eval_loader, inference_model, test_dataset, num_labels, device, batch_size, tokenizer, attentions=False
-        #)
-        #np.save(os.path.join(test_args.output_dir, "eval_pred_results.npy"), pred_results)
-        #np.save(os.path.join(test_args.output_dir, "eval_labels.npy"), true_labels)
+        _, _, pred_results, true_labels = predict(
+            eval_loader, inference_model, test_dataset, num_labels, device, batch_size, tokenizer, attentions=False
+        )
+        np.save(os.path.join(test_args.output_dir, "eval_pred_results.npy"), pred_results)
+        np.save(os.path.join(test_args.output_dir, "eval_labels.npy"), true_labels)
 
 
         if torch.cuda.is_available():

@@ -4,7 +4,7 @@
 #SBATCH -e myjob.err
 #SBATCH --mail-user=pranav_mahableshwarkar@brown.edu
 
-#SBATCH --mem=80G
+#SBATCH --mem=100G
 #SBATCH -t 12:00:00
 
 # Author: Pranav Mahableshwarkar
@@ -25,7 +25,8 @@ NUM_GPUS=1
 # mamba activate learning
 
 # Code to fine-tune the model.
-values=(2023 786 555 9000)
+values=(42 2023 786 555 9000)
+values=(42)
 for SEED in "${values[@]}"; do
     python3 train.py \
         --model_name_or_path zhihan1996/DNABERT-2-117M \
@@ -36,8 +37,8 @@ for SEED in "${values[@]}"; do
         --per_device_train_batch_size 16 \
         --per_device_eval_batch_size 16 \
         --gradient_accumulation_steps 1 \
-        --learning_rate 2e-4 \
-        --num_train_epochs 10 \
+        --learning_rate 3e-5 \
+        --num_train_epochs 7 \
         --save_steps 1000 \
         --output_dir "$OUTPATH/clamp_xva_${SEED}" \
         --evaluation_strategy steps \
