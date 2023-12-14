@@ -160,7 +160,7 @@ class CustomTrainer(transformers.Trainer):
         #rank = os.environ["LOCAL_RANK"]
         #this_device = torch.device(int(rank))
         loss_fct = torch.nn.CrossEntropyLoss()
-        loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1))
+        loss = loss_fct(logits.view(-1, self.model.config.num_labels), labels.view(-1, self.model.config.num_labels))
         return (loss, outputs) if return_outputs else loss
 
 
