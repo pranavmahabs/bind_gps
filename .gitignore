@@ -10,3 +10,4 @@ hic/
 module4_gcn/GSE89112_Kc167combined.chrX_res500bp.txt
 module3_dnabert2/data/ignore
 module3_dnabert2/model/pretrained_6mer/pytorch_model.bin
+module3_dnabert2/model/transformer_src/__pycache__/
