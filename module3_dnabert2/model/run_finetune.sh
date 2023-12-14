@@ -11,18 +11,19 @@ LABELJSON="labels.json"
 MODEL_PATH="pretrained_6mer/"
 
 # Edit these file-paths to point to the correct data and output directories.
-DATA_PATH="../data/balanced_data/"
-OUTPATH="../output/semi-balanced/"
-PICKLE="../data/balanced_data/supervised_dataset.p"
-NUM_GPUS=4
+DATA_PATH="../data/three-class/"
+OUTPATH="../output/three-class/"
+PICKLE="../data/three-class/supervised_dataset.p"
+NUM_GPUS=2
 
 # Code to activate conda environment - this can either be done through conda or mamba. 
 # source myconda
 # mamba activate learning
 
 # Code to fine-tune the model.
-LOCAL_RANK=$(seq 0 $((NUM_GPUS - 1))) CUDA_VISIBLE_DEVICE=$(seq 0 $((NUM_GPUS - 1))) \
-torchrun --nproc_per_node $NUM_GPUS transformer_src/train.py \
+#LOCAL_RANK=$(seq 0 $((NUM_GPUS - 1))) CUDA_VISIBLE_DEVICE=$(seq 0 $((NUM_GPUS - 1))) \
+#torchrun --nproc_per_node $NUM_GPUS transformer_src/train.py \
+python3 transformer_src/train.py \
         --model_config "dna6" \
         --model_name_or_path $MODEL_PATH \
         --data_path  $DATA_PATH \
