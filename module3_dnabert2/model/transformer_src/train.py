@@ -156,7 +156,7 @@ class CustomTrainer(transformers.Trainer):
         outputs = model(**inputs)
         logits = outputs.get("logits")
         # compute custom loss (using the global variable defined above)
-        weights = self.train_dataset.getweights()
+        # weights = self.train_dataset.getweights()
         #rank = os.environ["LOCAL_RANK"]
         #this_device = torch.device(int(rank))
         loss_fct = torch.nn.CrossEntropyLoss()
