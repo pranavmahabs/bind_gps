@@ -72,7 +72,7 @@ class SupervisedDataset(Dataset):
             #                   if the header is not included.
             
             texts = np.asarray(texts)
-            # labels = texts[:, 1]
+            labels = texts[:, 1]
             texts = list(texts[:, 0])
             texts = [seq2kmer(seq, kmer) for seq in texts]
 
