@@ -33,6 +33,20 @@ class GPS_CNN(nn.Module):
         return x
 
 
+class GPS_MLP(nn.Module):
+    def __init__(self, num_channels=24):
+        super().__init__()
+        self.fc1 = nn.Linear(in_features=num_channels, out_features=16)
+        self.fc2 = nn.Linear(in_features=16, out_features=2)
+
+    def forward(self, x):
+        x = torch.flatten(x, 1)  # flatten all dimensions except batch
+        # apply linear layers and relu activations
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+
 class GPS_CNN_Dataset(torch.utils.data.Dataset):
     def __init__(self, X: str, y: str, device=None):
         # read in numpy file for data
