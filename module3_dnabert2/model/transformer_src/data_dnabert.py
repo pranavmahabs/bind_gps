@@ -129,6 +129,7 @@ class DataCollatorForSupervisedDataset(object):
         encoded = np.zeros((labels.size, 2 + 1))
         encoded[np.arange(labels.size), labels] = 1
         encoded = torch.Tensor(encoded)
+        print(encoded.shape)
         return dict(
             input_ids=input_ids,
             labels=encoded,
