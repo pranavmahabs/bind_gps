@@ -1,0 +1,11 @@
+numpy
+pandas
+transformers
+torch
+sklearn
+pynvml
+tqdm
+peft
+matplotlib
+seaborn
+pybedtools
