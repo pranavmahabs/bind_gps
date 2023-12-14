@@ -126,9 +126,9 @@ class DataCollatorForSupervisedDataset(object):
             input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
         )
         labels = np.asarray([int(float(i)) for i in labels])
-        encoded = np.zeros((labels.size, 2 + 1))
-        encoded[np.arange(labels.size), labels] = 1
-        encoded = torch.Tensor(encoded)
+        # encoded = np.zeros((labels.size, 2 + 1))
+        # encoded[np.arange(labels.size), labels] = 1
+        encoded = torch.Tensor(labels).long()
         return dict(
             input_ids=input_ids,
             labels=encoded,
