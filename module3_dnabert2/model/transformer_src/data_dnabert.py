@@ -86,7 +86,7 @@ class SupervisedDataset(Dataset):
 
         self.input_ids = output["input_ids"]
         self.attention_mask = output["attention_mask"]
-        self.labels = labels.astype(np.int8)
+        self.labels = labels
         # EDIT HERE for LABEL TRANSFORMATION
         if -1 in self.labels:
             self.labels += 1
