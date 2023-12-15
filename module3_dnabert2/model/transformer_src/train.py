@@ -16,6 +16,8 @@ import pickle
 from pynvml import *
 import transformers
 import sklearn
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import roc_auc_score, roc_curve, auc, precision_recall_curve
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -209,13 +211,7 @@ def compute_auc_fpr_thresholds(logits, labels):
 
     roc_auc = auc(fprs0, tprs0)
     plt.figure()
-    plt.plot(fprs0, tprs0, color='darkorange', lw=2, label='X-Binding ROC curve (area = {:.2f})'.format(roc_auc))
-    #plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    #plt.xlabel('False Positive Rate')
-    #plt.ylabel('True Positive Rate')
-    #plt.legend(loc="lower right")
-    #plt.title('ROC Curve for X-Chromosome CLAMP Binding')
-    #plt.savefig('output/plots/x_roc.png')
+    plt.plot(fprs0, tprs0, color='lavender', lw=2, label='X-Binding ROC curve (area = {:.2f})'.format(roc_auc))
 
     ## class 2
     [fprs2, tprs2, thrs2] = sklearn.metrics.roc_curve((labels == 2), logits[:, 2])
@@ -229,14 +225,41 @@ def compute_auc_fpr_thresholds(logits, labels):
     fpr01_2 = thrs2[sort_ix[0]]
         
     roc_auc = auc(fprs2, tprs2)
-    #plt.figure()
     plt.plot(fprs2, tprs2, color='darkorange', lw=2, label='A-Binding ROC curve (area = {:.2f})'.format(roc_auc))
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    [fprs_n, tprs_n, thrs_n] = sklearn.metrics.roc_curve((labels == 0), logits[:, 0])
+    roc_auc = auc(fprs_n, tprs_n)
+    plt.plot(fprs_n, tprs_n, color='blue', lw=2, label='A-Binding ROC curve (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], color='black', lw=2, linestyle='--')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
     plt.title('ROC Curves for MRE Binding Prediction')
     plt.savefig('output/three-class/eval_roc.png')
+
+    y_test_binarized = label_binarize(labels, classes=[0, 1, 2])
+    n_classes = y_test_binarized.shape[1]
+
+    precision = dict()
+    recall = dict()
+    auprc = dict()
+
+    for i in range(3):
+        precision[i], recall[i], _ = precision_recall_curve((labels==i), logits[:, i])
+        auprc[i] = auc(recall[i], precision[i])
+
+    classes = ['control', 'X-chromosome MRE', 'autosomal MRE']
+    for i, cls in enumerate(classes):
+        if i > 0:
+            plt.plot(recall[i], precision[i], lw=2, 
+                    label='{0} (area = {1:0.2f})'.format(cls, auprc[i]))
+            
+    plt.xlim([0, 1])
+    plt.ylim([0, 1])
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve for MRE Sites Prediction')
+    plt.legend(loc="lower left")
+    plt.savefig('output/three-class/eval_prc.png')
 
     predictions = np.argmax(logits, axis=-1)
 
