@@ -332,11 +332,7 @@ def train():
     # load model
     model = transformers.AutoModelForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
-        cache_dir=training_args.cache_dir,
         num_labels=num_labels,
-        trust_remote_code=True,
-        id2label=id2label,
-        label2id=label2id,
     )
 
     # configure LoRA
