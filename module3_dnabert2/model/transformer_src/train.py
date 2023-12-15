@@ -341,6 +341,7 @@ def train():
 
     # configure LoRA
     if model_args.use_lora:
+        print("Using LoRA for training...")
         lora_config = LoraConfig(
             r=model_args.lora_r,
             lora_alpha=model_args.lora_alpha,
@@ -394,5 +395,5 @@ def train():
 
 
 if __name__ == "__main__":
-    os.environ["WANDB_DISABLED"] = "true"
+    # os.environ["WANDB_DISABLED"] = "true"
     train()
