@@ -228,7 +228,7 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.plot(fprs2, tprs2, color='darkorange', lw=2, label='A-Binding ROC curve (area = {:.2f})'.format(roc_auc))
     [fprs_n, tprs_n, thrs_n] = sklearn.metrics.roc_curve((labels == 0), logits[:, 0])
     roc_auc = auc(fprs_n, tprs_n)
-    plt.plot(fprs_n, tprs_n, color='blue', lw=2, label='A-Binding ROC curve (area = {:.2f})'.format(roc_auc))
+    plt.plot(fprs_n, tprs_n, color='blue', lw=2, label='Background (area = {:.2f})'.format(roc_auc))
     plt.plot([0, 1], [0, 1], color='black', lw=2, linestyle='--')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
