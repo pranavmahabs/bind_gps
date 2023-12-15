@@ -411,5 +411,5 @@ def train():
 
 
 if __name__ == "__main__":
-    # os.environ["WANDB_DISABLED"] = "true"
+    os.environ["WANDB_DISABLED"] = "true"
     train()
