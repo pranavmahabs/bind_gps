@@ -236,9 +236,6 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.title('ROC Curves for MRE Binding Prediction')
     plt.savefig('output/three-class/eval_roc.png')
 
-    y_test_binarized = label_binarize(labels, classes=[0, 1, 2])
-    n_classes = y_test_binarized.shape[1]
-
     precision = dict()
     recall = dict()
     auprc = dict()
