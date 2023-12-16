@@ -21,6 +21,8 @@ from sklearn.metrics import roc_auc_score, roc_curve, auc, precision_recall_curv
 import numpy as np
 from torch.utils.data import Dataset
 
+import matplotlib.pyplot as plt
+
 from peft import (
     LoraConfig,
     get_peft_model,
@@ -234,7 +236,7 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
     plt.title('ROC Curves for MRE Binding Prediction')
-    plt.savefig('output/three-class/eval_roc.png')
+    plt.savefig('../output/three-class/eval_roc.png')
 
     precision = dict()
     recall = dict()
@@ -256,7 +258,7 @@ def compute_auc_fpr_thresholds(logits, labels):
     plt.ylabel('Precision')
     plt.title('Precision-Recall Curve for MRE Sites Prediction')
     plt.legend(loc="lower left")
-    plt.savefig('output/three-class/eval_prc.png')
+    plt.savefig('../output/three-class/eval_prc.png')
 
     predictions = np.argmax(logits, axis=-1)
 

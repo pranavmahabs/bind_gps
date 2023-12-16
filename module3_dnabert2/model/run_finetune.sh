@@ -3,6 +3,9 @@
 #SBATCH -o myjob.out
 #SBATCH -e myjob.err
 
+#SBATCH --mem=100G
+#SBATCH -t 12:00:00
+
 # Author: Pranav Mahableshwarkar
 # Last Modified: 08-02-2021
 # Description: Script to fine-tune the model on the balanced dataset.
@@ -19,6 +22,9 @@ NUM_GPUS=2
 # Code to activate conda environment - this can either be done through conda or mamba. 
 # source myconda
 # mamba activate learning
+
+module load python/3.11.0
+module load openssl/3.0.0
 
 # Code to fine-tune the model.
 #LOCAL_RANK=$(seq 0 $((NUM_GPUS - 1))) CUDA_VISIBLE_DEVICE=$(seq 0 $((NUM_GPUS - 1))) \
@@ -38,12 +44,12 @@ python3 transformer_src/train.py \
         --per_device_eval_batch_size 16 \
         --gradient_accumulation_steps 1 \
         --learning_rate 2e-4 \
-        --num_train_epochs 10 \
+        --num_train_epochs 6 \
         --fp16 True \
-        --save_steps 100 \
+        --save_steps 500 \
         --output_dir $OUTPATH \
         --evaluation_strategy steps \
-        --eval_steps 100 \
+        --eval_steps 500 \
         --warmup_steps 200 \
         --logging_steps 100000 \
         --overwrite_output_dir True \

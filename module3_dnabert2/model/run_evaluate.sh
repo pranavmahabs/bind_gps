@@ -5,10 +5,10 @@
 
 LABELJSON="labels.json"
 MODEL_PATH="pretrained_6mer/"
-PEFT_PATH="../output/binary_enhancer/best_binary_815/"
+PEFT_PATH="../output/three-class/checkpoint-18000"
 
-OUTPATH="../output/binary_evaluation/"
-PICKLE="../data/binary_data/evaluate.p"
+OUTPATH="../output/three-class/"
+PICKLE="../data/three-class/evaluate.p"
 
 # Command to be executed with the --normal flag
     # Add your normal command here
