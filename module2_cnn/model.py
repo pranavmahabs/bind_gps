@@ -53,9 +53,7 @@ class GPS_MLP(nn.Module):
         return x
 
 class GPS_MLP_Dataset(Dataset):
-    def __init__(self, X: str, y: str, device=None):
-        X = np.load(X)
-        y = np.load(y)
+    def __init__(self, X: np.ndarray, y: np.ndarray, device=None):
         self.positive_indices = [i for i, x in enumerate(X) if y[i] == 1]
         self.negative_indices = [i for i, x in enumerate(X) if y[i] == 0]
         self.num_positive = len(self.positive_indices)
