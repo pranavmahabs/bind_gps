@@ -1,2 +1,10 @@
 preprocessing_chip-seq/genomes/dm6.fa
 preprocessing_chip-seq/genomes/dm6.fa.fai
+module2_cnn/X_data.npy
+module2_cnn/X_labels.npy
+module2_cnn/__pycache__
+module2_cnn/.ipynb_checkpoints
+module2_cnn/data
+module2_cnn/dsi_final_cleaned.TFs_HMs.txt
+module3_dnabert2/data/ignore
+module3_dnabert2/model/pretrained_6mer/pytorch_model.bin
