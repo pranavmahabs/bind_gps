@@ -1,0 +1,10 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 12266320
+##  Job Name : gpu_check
+##  Nodelist : gpu2007
+##      CPUs : 
+##  Mem/Node : 16384 MB
+## Directory : /oscar/data/larschan/jaguile1/3d_clamp_project/machine_learning/model_training/vanilla_transformer
+##   Job Started : Sun Dec  3 13:58:22 EST 2023
+###############################################################################
+GPU is available.
