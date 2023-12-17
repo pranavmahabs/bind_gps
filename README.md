@@ -7,5 +7,5 @@ Using a fine-tuned DNABERT model and graph neural network in tandem, we aim to r
 Below, we describe the schematic utilized in this project. Data utilized in the project was produced in house in the Larschan Lab at Brown University. All code for each module can be found in the respective module directories. 
 
 <p align="center">
-  <img src="https://github.com/pranavmahabs/bind_gps/blob/main/schematic.png" width="50%" height="50%">
+  <img src="https://github.com/pranavmahabs/bind_gps/blob/main/schematic.png" width="60%" height="60%">
 </p>
